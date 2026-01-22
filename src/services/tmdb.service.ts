@@ -1,4 +1,3 @@
-// @ts-expect-error
 import axios from 'axios'
 
 const TMDB_KEY = import.meta.env.VITE_TMDB_API_KEY
