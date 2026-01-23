@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: 'https://github.com/aserlite/pastoplesfilms',
+  base: 'https://aserlite.github.io/pastoplesfilms/',
   plugins: [vue(), vueDevTools(), tailwindcss()],
   resolve: {
     alias: {
