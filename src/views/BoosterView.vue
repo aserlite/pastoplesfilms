@@ -7,6 +7,7 @@ const collection = useCollectionStore()
 
 const currentMovie = ref<Movie | null>(null)
 const isLoading = ref(false)
+const isAnimating = ref(false)
 const isNew = ref(false)
 
 const currentTime = ref(Date.now())
@@ -52,16 +53,24 @@ onMounted(() => {
 })
 
 const handleOpenBooster = async (type: keyof typeof PACKS) => {
-  if (isLoading.value || getRemainingTime(type) > 0) return
+  if (isLoading.value || isAnimating.value || getRemainingTime(type) > 0) return
+
   isLoading.value = true
+  isAnimating.value = true
   isNew.value = false
+
+  const tempMovie = currentMovie.value
+  currentMovie.value = null
 
   try {
     let maxVote = 5
     if (type === 'rare') maxVote = 4
     if (type === 'legendaire') maxVote = 2
 
-    const movie = await MovieApiService.fetchRandomMovie(maxVote)
+    const [movie] = await Promise.all([
+      MovieApiService.fetchRandomMovie(maxVote),
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+    ])
 
     if (movie) {
       isNew.value = !collection.ownedMovies.some((m) => m.id === movie.id)
@@ -71,13 +80,17 @@ const handleOpenBooster = async (type: keyof typeof PACKS) => {
       const expiry = Date.now() + PACKS[type].cd
       cooldowns.value[type] = expiry
       localStorage.setItem(`cd_${type}`, expiry.toString())
+    } else {
+      currentMovie.value = tempMovie
     }
   } catch (error) {
     console.error('Erreur lors du tirage', error)
+    currentMovie.value = tempMovie
   } finally {
+    isLoading.value = false
     setTimeout(() => {
-      isLoading.value = false
-    }, 800)
+      isAnimating.value = false
+    }, 100)
   }
 }
 
@@ -104,14 +117,18 @@ const getRarityUI = (note: number) => {
         <p class="text-slate-400 mt-2 font-medium">Tentez d'obtenir une pépite du cinéma</p>
       </div>
 
-      <div class="relative group.cursor-pointer perspective-1000">
+      <div class="relative perspective-1000 mb-8">
         <div
-          class="absolute -inset-4 bg-red-600/20 blur-xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"
+          class="absolute -inset-4 bg-red-600/20 blur-xl rounded-full transition-opacity duration-500"
+          :class="isAnimating ? 'opacity-100 scale-125' : 'opacity-50'"
         ></div>
 
         <div
-          class="relative w-64 h-96 md:w-72 md:h-[420px] bg-slate-900 border-4 border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-500"
-          :class="{ 'animate-pulse scale-95': isLoading, 'hover:scale-105': !isLoading }"
+          class="relative w-64 h-96 md:w-72 md:h-[420px] bg-slate-900 border-4 border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-transform duration-300 transform-style-3d"
+          :class="{
+            'animate-spin-reveal': isAnimating,
+            'hover:scale-105': !isLoading && !isAnimating,
+          }"
         >
           <img
             :src="
@@ -120,53 +137,62 @@ const getRarityUI = (note: number) => {
                 : randomImg
             "
             alt="Film preview"
-            class="w-full h-full object-cover transition-opacity duration-500"
-            :class="isLoading ? 'opacity-20' : 'opacity-80'"
+            class="w-full h-full object-cover transition-all duration-300"
+            :class="isAnimating ? 'blur-sm brightness-150' : ''"
           />
 
-          <div
-            v-if="currentMovie && !isLoading"
-            class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent"
-          >
-            <div class="absolute bottom-95 right-2">
-              <span
-                v-if="isNew"
-                class="bg-green-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg animate-bounce uppercase tracking-widest"
-              >
-                NOUVEAU
-              </span>
-              <span
-                v-else
-                class="bg-slate-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-widest"
-              >
-                DOUBLON
-              </span>
-            </div>
-
-            <span
-              :class="[
-                'text-[10px] uppercase tracking-[0.2em] font-black',
-                getRarityUI(currentMovie?.vote_average ?? 0).color,
-              ]"
+          <transition name="fade">
+            <div
+              v-if="currentMovie && !isAnimating"
+              class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent"
             >
-              Rareté : {{ getRarityUI(currentMovie?.vote_average ?? 0).label }}
-            </span>
-            <h3 class="text-lg font-bold text-white leading-tight truncate">
-              {{ currentMovie?.title }}
-            </h3>
-          </div>
+              <div class="absolute bottom-95 right-2">
+                <span
+                  v-if="isNew"
+                  class="bg-green-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg animate-bounce uppercase tracking-widest"
+                >
+                  NOUVEAU
+                </span>
+                <span
+                  v-else
+                  class="bg-slate-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-widest"
+                >
+                  DOUBLON
+                </span>
+              </div>
 
-          <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
-            <span class="text-white font-black italic animate-bounce">TIRAGE EN COURS...</span>
+              <span
+                :class="[
+                  'text-[10px] uppercase tracking-[0.2em] font-black',
+                  getRarityUI(currentMovie?.vote_average ?? 0).color,
+                ]"
+              >
+                Rareté : {{ getRarityUI(currentMovie?.vote_average ?? 0).label }}
+              </span>
+              <h3 class="text-lg font-bold text-white leading-tight truncate">
+                {{ currentMovie?.title }}
+              </h3>
+            </div>
+          </transition>
+
+          <div
+            v-if="isAnimating"
+            class="absolute inset-0 flex items-center justify-center bg-black/30"
+          >
+            <span
+              class="text-white font-black italic text-2xl drop-shadow-lg tracking-widest animate-pulse"
+            >
+              ???
+            </span>
           </div>
         </div>
       </div>
 
-      <div class="text-lg font-bold text-white leading-tight mt-4 mb-8">
+      <div class="h-8 mb-8">
         <RouterLink
-          v-if="currentMovie && !isLoading"
+          v-if="currentMovie && !isLoading && !isAnimating"
           :to="{ name: 'movie-detail', params: { id: currentMovie.id } }"
-          class="hover:text-red-500 transition-colors underline decoration-red-500/30 underline-offset-4 cursor-pointer"
+          class="text-lg font-bold text-white leading-tight hover:text-red-500 transition-colors underline decoration-red-500/30 underline-offset-4 cursor-pointer"
         >
           Voir la fiche du film
         </RouterLink>
@@ -176,7 +202,7 @@ const getRarityUI = (note: number) => {
         <div v-for="(data, type) in PACKS" :key="type" class="flex flex-col items-center">
           <button
             @click="handleOpenBooster(type as keyof typeof PACKS)"
-            :disabled="isLoading || getRemainingTime(type as keyof typeof PACKS) > 0"
+            :disabled="isLoading || isAnimating || getRemainingTime(type as keyof typeof PACKS) > 0"
             :class="[
               'w-full py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all transform active:scale-95 shadow-2xl disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed',
               data.color,
@@ -210,5 +236,42 @@ const getRarityUI = (note: number) => {
 <style scoped>
 .perspective-1000 {
   perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+@keyframes spin-reveal {
+  0% {
+    transform: rotateY(0deg) scale(1);
+  }
+  80% {
+    transform: rotateY(576deg) scale(1);
+  }
+  90% {
+    transform: rotateY(700deg) scale(1.2);
+  }
+  100% {
+    transform: rotateY(720deg) scale(1);
+  }
+}
+
+.animate-spin-reveal {
+  animation: spin-reveal 1.2s forwards;
+}
+
+.animate-spin-reveal {
+  animation: spin-reveal 1.5s ease-in-out forwards;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
