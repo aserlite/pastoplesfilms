@@ -117,7 +117,7 @@ const getRarityUI = (note: number) => {
             :src="
               currentMovie?.poster_path
                 ? `https://image.tmdb.org/t/p/w500${currentMovie.poster_path}`
-                : '../assets/random.png'
+                : './assets/random.png'
             "
             alt="Film preview"
             class="w-full h-full object-cover transition-opacity duration-500"
