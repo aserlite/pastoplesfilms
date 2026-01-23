@@ -68,10 +68,11 @@ const getScoreColor = (note: number) => {
         v-if="filteredMovies.length > 0"
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
       >
-        <div
+        <RouterLink
           v-for="movie in filteredMovies"
           :key="movie.id"
-          class="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-red-600 transition-all duration-300 shadow-lg hover:-translate-y-2"
+          :to="{ name: 'movie-detail', params: { id: movie.id } }"
+          class="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-red-600 transition-all duration-300 shadow-lg hover:-translate-y-2 block"
         >
           <div class="aspect-[2/3] overflow-hidden">
             <img
@@ -98,8 +99,7 @@ const getScoreColor = (note: number) => {
               </span>
             </div>
           </div>
-        </div>
-
+        </RouterLink>
       </div>
 
       <div v-else class="flex flex-col items-center justify-center py-20 text-center">

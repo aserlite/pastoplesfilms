@@ -24,6 +24,11 @@ const router = createRouter({
       name: 'merge',
       component: () => import('../views/MergeView.vue'),
     },
+    {
+      path: '/movie/:id',
+      name: 'movie-detail',
+      component: () => import('../views/MovieDetailView.vue')
+    },
   ],
 })
 

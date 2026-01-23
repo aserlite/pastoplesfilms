@@ -86,9 +86,6 @@ const getRarityUI = (note: number) => {
   if (note <= 4) return { label: 'Rare', color: 'text-purple-500' }
   return { label: 'Commun', color: 'text-red-500' }
 }
-
-const getTmdbLink = (movie: Movie | null) =>
-  movie ? `https://www.themoviedb.org/movie/${movie.id}` : '#'
 </script>
 
 <template>
@@ -166,14 +163,13 @@ const getTmdbLink = (movie: Movie | null) =>
       </div>
 
       <div class="text-lg font-bold text-white leading-tight mt-4 mb-8">
-        <a
+        <RouterLink
           v-if="currentMovie && !isLoading"
-          :href="getTmdbLink(currentMovie)"
-          target="_blank"
-          class="hover:text-red-500 transition-colors underline decoration-red-500/30 underline-offset-4"
+          :to="{ name: 'movie-detail', params: { id: currentMovie.id } }"
+          class="hover:text-red-500 transition-colors underline decoration-red-500/30 underline-offset-4 cursor-pointer"
         >
-          voir sur TMdb
-        </a>
+          Voir la fiche du film
+        </RouterLink>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
