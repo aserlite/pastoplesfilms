@@ -1,48 +1,55 @@
-# pastoplefilme
 
-This template should help get you started developing with Vue 3 in Vite.
+# Patoplefilm
 
-## Recommended IDE Setup
+Patoplefilm est une application web de collection de cartes (TCG) basée sur l'univers des pires films de l'histoire.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+-----
 
-## Recommended Browser Setup
+## 🚀Stack Technique
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+- Framework : Vue 3
+- Build Tool : Vite
+- Langage : TypeScript
+- State Management : Pinia
+- Routing : Vue Router
+- Styling : Tailwind CSS
+- API : The Movie Database (TMDB)
+- Qualité : ESLint, Prettier, Husky (Pre-commit hooks)
+- CI : GitHub Actions (Lint & Build check au push)
 
-## Type Support for `.vue` Imports in TS
+------
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## 🎮 Le Concept
+L'utilisateur peut ouvrir des booster contenant des films notés entre 1 et 5 sur TMDB.
+L'objectif est de collectinner les films les moins bien notés.
 
-## Customize configuration
+Les cartes sont classées selon leur "score de nullité" :
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- Commun : Note entre 5 et 4
+- Rare : Note entre 3.99 et 3
+- Épique : Note entre 2.99 et 2
+- Légendaire : Note inférieure a 2
 
-## Project Setup
+-----
 
-```sh
+## ⚙️Configuration
+
+Un fichier .env est nécessaire à la racine du projet pour faire fonctionner l'API :
+```
+VITE_TMDB_API_KEY=votre_cle_api_tmdb
+```
+
+------
+
+## 🛠 Commandes utiles
+
+Installation
+```
 npm install
 ```
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
+Vérifications
 ```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
 npm run lint
+npm run type-check
 ```
