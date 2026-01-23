@@ -8,10 +8,10 @@ import { RouterLink } from 'vue-router'
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-900/20 via-black to-black"></div>
 
     <div class="relative z-10 text-center mb-12">
-      <h1 class="text-7xl md:text-9xl font-black tracking-tighter text-white uppercase italic drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
+      <h1 class="text-5xl md:text-9xl font-black tracking-tighter text-white uppercase italic drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
         Patoplefilm
       </h1>
-      <p class="text-slate-300 text-lg md:text-xl font-medium mt-4">
+      <p class="text-slate-300 text-m md:text-xl font-medium mt-4">
         Collectionnez les pires films de tous les temps
       </p>
     </div>
