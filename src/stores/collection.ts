@@ -55,6 +55,25 @@ export const useCollectionStore = defineStore('collection', () => {
     ownedMovies.value.push(movie)
   }
 
+  function receiveGift(giftCode: string): Movie | null {
+    try {
+      const json = atob(giftCode)
+      const movie = JSON.parse(json) as Movie
+      if (!movie || !movie.id) return null
+
+      ownedMovies.value.push(movie)
+
+      return movie
+    } catch (e) {
+      console.error('Cadeau invalide', e)
+      return null
+    }
+  }
+
+  function removeMovie(id: number) {
+    ownedMovies.value = ownedMovies.value.filter((m) => m.id !== id)
+  }
+
   function mergeCards(fromRarity: 'commun' | 'rare'): boolean {
     const candidates =
       fromRarity === 'commun' ? collectionStats.value.commun : collectionStats.value.rare
@@ -64,5 +83,5 @@ export const useCollectionStore = defineStore('collection', () => {
     return true
   }
 
-  return { ownedMovies, addMovie, collectionStats, mergeCards, hasMovie, getMovieRarity }
+  return { ownedMovies, addMovie, collectionStats, mergeCards, hasMovie, getMovieRarity, removeMovie , receiveGift, }
 })

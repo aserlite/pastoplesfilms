@@ -1,5 +1,26 @@
 <script setup lang="ts">
-import { RouterView, RouterLink } from 'vue-router'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router' // Si tu as besoin de rediriger
+import { useCollectionStore } from '@/stores/collection'
+
+const collection = useCollectionStore()
+const router = useRouter()
+
+onMounted(() => {
+  const params = new URLSearchParams(window.location.search)
+  const giftCode = params.get('gift')
+  if (giftCode) {
+    const movie = collection.receiveGift(giftCode)
+
+    if (movie) {
+      alert(`🎁 CADEAU REÇU ! Tu as obtenu : ${movie.title}`)
+      router.push('/collection')
+    } else {
+      alert('❌ Lien invalide ou corrompu.')
+    }
+    window.history.replaceState({}, '', window.location.pathname)
+  }
+})
 </script>
 
 <template>

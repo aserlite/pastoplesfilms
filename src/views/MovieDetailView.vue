@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { MovieApiService } from '@/services/tmdb.service'
+import { useCollectionStore } from '@/stores/collection.ts'
 
 interface Video {
   id: string
@@ -62,6 +63,36 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+const handleGift = () => {
+  if (!movie.value) return
+
+  const confirmGift = confirm(
+    `Veux-tu vraiment offrir "${movie.value.title}" ?\n\n⚠️ ATTENTION : Cette carte sera définitivement supprimée de ta collection !`,
+  )
+  if (confirmGift) {
+    const payload = {
+      id: movie.value.id,
+      title: movie.value.title,
+      poster_path: movie.value.poster_path,
+      vote_average: movie.value.vote_average,
+    }
+
+    const code = btoa(JSON.stringify(payload))
+    const link = `${window.location.origin}${window.location.pathname}?gift=${code}`
+
+    navigator.clipboard
+      .writeText(link)
+      .then(() => {
+        const store = useCollectionStore()
+        store.removeMovie(movie.value!.id)
+
+        alert('✅ Lien copié ! La carte a été retirée de ton inventaire.')
+        router.push('/collection')
+      })
+      .catch(() => alert('Erreur lors de la copie du lien.'))
+  }
+}
 </script>
 
 <template>
@@ -169,6 +200,12 @@ onMounted(async () => {
         >
           Voir la fiche TMdb
         </a>
+        <button
+          @click="handleGift"
+          class="inline-block px-8 py-4 ring-4 ml-8 ring-red-600 ring-inset  rounded-full font-black uppercase text-white hover:bg-red-600 hover:scale-105 transition-all shadow-lg"
+        >
+          🎁 Offrir à un ami
+        </button>
       </div>
     </div>
   </div>
