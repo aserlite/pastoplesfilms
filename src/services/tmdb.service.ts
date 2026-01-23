@@ -11,17 +11,24 @@ const instance = axios.create({
 })
 
 export const MovieApiService = {
-  async fetchRandomMovie() {
+  async fetchRandomMovie(maxVote: number = 5) {
     const randomPage = Math.floor(Math.random() * 20) + 1
     const { data } = await instance.get('/discover/movie', {
       params: {
-        'vote_average.lte': 5,
-        'vote_count.gte': 5,
+        'vote_average.lte': maxVote,
+        'vote_count.gte': 50,
         page: randomPage,
         include_adult:false,
       },
     })
-    console.log(data)
+
+    if (data.results.length === 0) {
+      const retry = await instance.get('/discover/movie', {
+        params: { 'vote_average.lte': maxVote, 'vote_count.gte': 20 },
+      })
+      return retry.data.results[Math.floor(Math.random() * retry.data.results.length)]
+    }
+
     return data.results[Math.floor(Math.random() * data.results.length)]
   },
 }

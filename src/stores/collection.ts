@@ -1,11 +1,15 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
-interface Movie {
+export interface Movie {
   id: number
   title?: string
+  vote_average?: number
+  poster_path?: string
   [key: string]: unknown
 }
+
+export type Rarity = 'legendaire' | 'rare' | 'commun'
 
 export const useCollectionStore = defineStore('collection', () => {
   const loadFromLocalStorage = (): Movie[] => {
@@ -20,20 +24,43 @@ export const useCollectionStore = defineStore('collection', () => {
 
   const ownedMovies = ref<Movie[]>(loadFromLocalStorage())
 
-  watch(ownedMovies, (newVal) => {
-    try {
+  watch(
+    ownedMovies,
+    (newVal) => {
       localStorage.setItem('patoplefilm_collection', JSON.stringify(newVal))
-    } catch {
+    },
+    { deep: true },
+  )
 
+  const getMovieRarity = (movie: Movie): Rarity => {
+    const note = movie.vote_average ?? 0
+    if (note <= 2) return 'legendaire'
+    if (note <= 4) return 'rare'
+    return 'commun'
+  }
+
+  const collectionStats = computed(() => {
+    return {
+      commun: ownedMovies.value.filter((m) => getMovieRarity(m) === 'commun'),
+      rare: ownedMovies.value.filter((m) => getMovieRarity(m) === 'rare'),
+      legendaire: ownedMovies.value.filter((m) => getMovieRarity(m) === 'legendaire'),
     }
-  }, { deep: true })
+  })
 
   function addMovie(movie: Movie) {
-    const exists = ownedMovies.value.some(m => m.id === movie.id)
-    if (!exists) {
+    if (!ownedMovies.value.some((m) => m.id === movie.id)) {
       ownedMovies.value.push(movie)
     }
   }
 
-  return { ownedMovies, addMovie }
+  function mergeCards(fromRarity: 'commun' | 'rare'): boolean {
+    const candidates =
+      fromRarity === 'commun' ? collectionStats.value.commun : collectionStats.value.rare
+    if (candidates.length < 15) return false
+    const idsToRemove = candidates.slice(0, 15).map((m) => m.id)
+    ownedMovies.value = ownedMovies.value.filter((m) => !idsToRemove.includes(m.id))
+    return true
+  }
+
+  return { ownedMovies, addMovie, collectionStats, mergeCards, getMovieRarity }
 })
