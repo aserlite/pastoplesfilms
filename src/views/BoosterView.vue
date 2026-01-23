@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { MovieApiService } from '@/services/tmdb.service'
 import { useCollectionStore } from '@/stores/collection'
 
@@ -10,14 +10,32 @@ interface Movie {
   title?: string
   poster_path?: string
   vote_average?: number
+  release_date?: string
   [key: string]: unknown
 }
 
 const currentMovie = ref<Movie | null>(null)
 const isLoading = ref(false)
 
+const COOLDOWN_DURATION = 60 * 1000
+const nextPullAllowedAt = ref<number>(Number(localStorage.getItem('next_pull_time')) || 0)
+const currentTime = ref(Date.now())
+
+const timeLeft = computed(() => {
+  const diff = nextPullAllowedAt.value - currentTime.value
+  return diff > 0 ? Math.ceil(diff / 1000) : 0
+})
+
+const isOnCooldown = computed(() => timeLeft.value > 0)
+
+onMounted(() => {
+  setInterval(() => {
+    currentTime.value = Date.now()
+  }, 1000)
+})
+
 const handleOpenBooster = async () => {
-  if (isLoading.value) return
+  if (isLoading.value || isOnCooldown.value) return
 
   isLoading.value = true
 
@@ -27,6 +45,10 @@ const handleOpenBooster = async () => {
     currentMovie.value = typedMovie
 
     collection.addMovie(typedMovie)
+
+    const expiry = Date.now() + COOLDOWN_DURATION
+    nextPullAllowedAt.value = expiry
+    localStorage.setItem('next_pull_time', expiry.toString())
   } catch (error) {
     console.error("Erreur", error)
   } finally {
@@ -105,12 +127,20 @@ const getTmdbLink = (movie: Movie | null) => {
       <div class="mt-12 flex flex-col items-center gap-4 w-full">
         <button
           @click="handleOpenBooster"
-          :disabled="isLoading"
+          :disabled="isLoading || isOnCooldown"
           class="w-full md:w-auto px-12 py-4 bg-white text-black font-black uppercase rounded-full hover:bg-red-600 hover:text-white transition-all transform active:scale-95 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {{ isLoading ? 'Ouverture...' : 'Ouvrir' }}
+          <span v-if="isLoading">Ouverture...</span>
+          <span v-else-if="isOnCooldown">Recharge ({{ timeLeft }}s)</span>
+          <span v-else>Ouvrir</span>
         </button>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.perspective-1000 {
+  perspective: 1000px;
+}
+</style>
