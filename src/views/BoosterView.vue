@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { MovieApiService } from '@/services/tmdb.service'
 import { useCollectionStore, type Movie } from '@/stores/collection'
-
+import randomImg from '@/assets/random.png'
 const collection = useCollectionStore()
 
 const currentMovie = ref<Movie | null>(null)
@@ -117,7 +117,7 @@ const getRarityUI = (note: number) => {
             :src="
               currentMovie?.poster_path
                 ? `https://image.tmdb.org/t/p/w500${currentMovie.poster_path}`
-                : './assets/random.png'
+                : randomImg
             "
             alt="Film preview"
             class="w-full h-full object-cover transition-opacity duration-500"
