@@ -56,7 +56,7 @@ const getRarityUI = (note: number) => {
       >
         <div class="text-center">
           <img
-            src="../assets/phase_3_mr_incredible.webp"
+            src="../assets/phase_2_mr_incredible.webp"
             alt="mr incredible"
             class="w-50 h-50 mx-auto"
           />
