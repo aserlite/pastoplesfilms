@@ -19,6 +19,11 @@ const router = createRouter({
       name: 'booster',
       component: () => import('../views/BoosterView.vue'),
     },
+    {
+      path: '/merge',
+      name: 'merge',
+      component: () => import('../views/MergeView.vue'),
+    },
   ],
 })
 

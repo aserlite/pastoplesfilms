@@ -10,8 +10,7 @@ import { RouterView, RouterLink } from 'vue-router'
         class="hover:border-b-2 transition-all"
         active-class="border-b-2 border-white"
         >Home
-      </RouterLink
-      >
+      </RouterLink>
       <RouterLink
         to="/collection"
         class="hover:border-b-2 transition-all"
@@ -23,6 +22,12 @@ import { RouterView, RouterLink } from 'vue-router'
         class="hover:border-b-2 transition-all"
         active-class="border-b-2 border-white"
         >Booster</RouterLink
+      >
+      <RouterLink
+        to="/merge"
+        class="hover:border-b-2 transition-all"
+        active-class="border-b-2 border-white"
+        >Merge</RouterLink
       >
     </nav>
 
