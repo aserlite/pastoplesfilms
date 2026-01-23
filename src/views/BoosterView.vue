@@ -7,6 +7,7 @@ const collection = useCollectionStore()
 
 const currentMovie = ref<Movie | null>(null)
 const isLoading = ref(false)
+const isNew = ref(false)
 
 const currentTime = ref(Date.now())
 
@@ -53,6 +54,7 @@ onMounted(() => {
 const handleOpenBooster = async (type: keyof typeof PACKS) => {
   if (isLoading.value || getRemainingTime(type) > 0) return
   isLoading.value = true
+  isNew.value = false
 
   try {
     let maxVote = 5
@@ -62,6 +64,7 @@ const handleOpenBooster = async (type: keyof typeof PACKS) => {
     const movie = await MovieApiService.fetchRandomMovie(maxVote)
 
     if (movie) {
+      isNew.value = !collection.ownedMovies.some((m) => m.id === movie.id)
       currentMovie.value = movie as Movie
       collection.addMovie(currentMovie.value)
 
@@ -128,6 +131,21 @@ const getTmdbLink = (movie: Movie | null) =>
             v-if="currentMovie && !isLoading"
             class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent"
           >
+            <div class="absolute bottom-95 right-2">
+              <span
+                v-if="isNew"
+                class="bg-green-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg animate-bounce uppercase tracking-widest"
+              >
+                NOUVEAU
+              </span>
+              <span
+                v-else
+                class="bg-slate-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-widest"
+              >
+                DOUBLON
+              </span>
+            </div>
+
             <span
               :class="[
                 'text-[10px] uppercase tracking-[0.2em] font-black',

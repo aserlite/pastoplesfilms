@@ -47,10 +47,12 @@ export const useCollectionStore = defineStore('collection', () => {
     }
   })
 
+  function hasMovie(id: number): boolean {
+    return ownedMovies.value.some((m) => m.id === id)
+  }
+
   function addMovie(movie: Movie) {
-    if (!ownedMovies.value.some((m) => m.id === movie.id)) {
-      ownedMovies.value.push(movie)
-    }
+    ownedMovies.value.push(movie)
   }
 
   function mergeCards(fromRarity: 'commun' | 'rare'): boolean {
@@ -62,5 +64,5 @@ export const useCollectionStore = defineStore('collection', () => {
     return true
   }
 
-  return { ownedMovies, addMovie, collectionStats, mergeCards, getMovieRarity }
+  return { ownedMovies, addMovie, collectionStats, mergeCards, hasMovie, getMovieRarity }
 })
