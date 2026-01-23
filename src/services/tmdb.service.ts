@@ -15,7 +15,7 @@ export const MovieApiService = {
     const randomPage = Math.floor(Math.random() * 20) + 1
     const { data } = await instance.get('/discover/movie', {
       params: {
-        'vote_average.lte': 2,
+        'vote_average.lte': 5,
         'vote_count.gte': 5,
         page: randomPage,
         include_adult:false,
