@@ -22,7 +22,6 @@ onMounted(() => {
   }
 })
 </script>
-
 <template>
   <div class="min-h-screen bg-black text-white font-sans">
     <nav class="flex gap-8 p-6 text-sm uppercase tracking-widest font-bold">

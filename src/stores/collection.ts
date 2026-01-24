@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, watch, computed } from 'vue'
-
 export interface Movie {
   id: number
   title?: string
@@ -74,14 +73,24 @@ export const useCollectionStore = defineStore('collection', () => {
     ownedMovies.value = ownedMovies.value.filter((m) => m.id !== id)
   }
 
-  function mergeCards(fromRarity: 'commun' | 'rare'): boolean {
-    const candidates =
-      fromRarity === 'commun' ? collectionStats.value.commun : collectionStats.value.rare
-    if (candidates.length < 15) return false
-    const idsToRemove = candidates.slice(0, 15).map((m) => m.id)
-    ownedMovies.value = ownedMovies.value.filter((m) => !idsToRemove.includes(m.id))
-    return true
+  function removeSpecificMovies(moviesToRemove: Movie[]) {
+    moviesToRemove.forEach((movieToRemove) => {
+      const index = ownedMovies.value.indexOf(movieToRemove)
+
+      if (index > -1) {
+        ownedMovies.value.splice(index, 1)
+      }
+    })
   }
 
-  return { ownedMovies, addMovie, collectionStats, mergeCards, hasMovie, getMovieRarity, removeMovie , receiveGift, }
+  return {
+    ownedMovies,
+    addMovie,
+    collectionStats,
+    hasMovie,
+    getMovieRarity,
+    removeMovie,
+    receiveGift,
+    removeSpecificMovies,
+  }
 })
