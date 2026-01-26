@@ -48,7 +48,7 @@ const openSelectionModal = (rarity: 'commun' | 'rare') => {
 }
 
 const toggleMovieSelection = (movie: Movie) => {
-  const index = selectedMovies.value.findIndex((m) => m.id === movie.id)
+  const index = selectedMovies.value.indexOf(movie)
 
   if (index >= 0) {
     selectedMovies.value.splice(index, 1)
@@ -59,8 +59,8 @@ const toggleMovieSelection = (movie: Movie) => {
   }
 }
 
-const isSelected = (movieId: number) => {
-  return selectedMovies.value.some((m) => m.id === movieId)
+const isSelected = (movie: Movie) => {
+  return selectedMovies.value.includes(movie)
 }
 
 const confirmMerge = async () => {
@@ -238,39 +238,28 @@ const getRarityUI = (note: number) => {
       <div class="flex-1 overflow-y-auto p-6">
         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
           <div
-            v-for="movie in paginatedMovies"
-            :key="movie.id"
+            v-for="(movie, index) in paginatedMovies"
+            :key="`${movie.id}-${index}`"
             @click="toggleMovieSelection(movie)"
             class="relative aspect-[2/3] rounded-lg overflow-hidden cursor-pointer transition-all duration-150 group"
             :class="
-              isSelected(movie.id)
+              isSelected(movie)
                 ? 'ring-4 ring-green-500 scale-95 opacity-100'
                 : 'opacity-60 hover:opacity-100 hover:scale-105'
             "
           >
             <img
               loading="lazy"
-              :src="
-                movie.poster_path
-                  ? `https://image.tmdb.org/t/p/w200${movie.poster_path}`
-                  : '/src/assets/random.png'
-              "
+              :src="movie.poster_path ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` : '/src/assets/random.png'"
               class="w-full h-full object-cover"
             />
 
             <div
-              v-if="isSelected(movie.id)"
+              v-if="isSelected(movie)"
               class="absolute inset-0 bg-green-500/20 flex items-center justify-center"
             >
               <div class="bg-green-500 text-black rounded-full p-1 shadow-lg">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="4"
-                  stroke="currentColor"
-                  class="w-4 h-4"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="4" stroke="currentColor" class="w-4 h-4">
                   <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                 </svg>
               </div>
